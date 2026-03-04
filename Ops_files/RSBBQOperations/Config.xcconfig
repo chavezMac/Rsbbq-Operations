@@ -1,0 +1,14 @@
+//
+//  Config.xcconfig
+//  RSBBQOperations
+//
+//  Created by Michael Chavez on 2/22/26.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+// Replace with your API base URL. For local dev with a real URL, use Secrets.xcconfig (gitignored) and point the project at it, or edit here and do not commit.
+API_BASE_URL = https://your-api.run.app
+// Inject into Info.plist so the app can read it at runtime (key: APIBaseURL).
+INFOPLIST_KEY_APIBaseURL = $(API_BASE_URL)
