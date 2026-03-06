@@ -11,8 +11,8 @@ Native iPhone app (Swift, SwiftUI) for multi-store operations: login, store dash
 
 ## Requirements
 
-- Xcode 15+ (Swift 5, SwiftUI)
-- iOS 16+
+- Xcode 26+ (Swift 5, SwiftUI)
+- iOS 26+
 - Access to the RSBBQ Operations API (base URL set at build time)
 
 ## Getting started
