@@ -72,6 +72,30 @@ Ops/
             └── APIService.swift      # Auth, config, API client
 ```
 
+## Swift DocC documentation
+
+The project includes a **Documentation Catalog** (`RSBBQOperations.docc`) so you can build API documentation from code comments and the catalog.
+
+### Building locally
+
+In Xcode: **Product → Build Documentation** (⌃⌘D). The docs open in the documentation viewer.
+
+### DocC CI (GitHub Actions)
+
+A workflow in `.github/workflows/docc.yml`:
+
+- **On every push/PR to `main`:** Builds the DocC archive and uploads the static site as an artifact.
+- **On push to `main`:** Deploys the documentation to **GitHub Pages** (if enabled).
+
+To enable GitHub Pages:
+
+1. In the repo: **Settings → Pages**.
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
+3. After the next push to `main`, docs will be available at  
+   `https://<owner>.github.io/<repo>/documentation/rsbbqoperations`.
+
+The workflow uses a **stub `Secrets.xcconfig`** in CI (copied from `Config.xcconfig` or a placeholder) so the project builds without your real API URL. To add articles or customize the catalog, edit the `RSBBQOperations.docc` folder and add Markdown under that catalog.
+
 ## License
 
 Private / internal use.
