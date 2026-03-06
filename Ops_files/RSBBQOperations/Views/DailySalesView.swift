@@ -1,6 +1,9 @@
 import SwiftUI
 import Charts
 
+/// A single data point for the Daily Sales bar charts (amount or order count per store and type).
+///
+/// ``xKey`` is a unique x-axis value so Catering and Non-Catering appear side by side (not stacked).
 private struct ChartPoint: Identifiable {
     let id = UUID()
     let storeCode: String
@@ -15,13 +18,17 @@ private struct ChartPoint: Identifiable {
     }
 }
 
-/// One aggregated point per category for the Orders by Category chart (avoids duplicate legend entries).
+/// One aggregated point per dining option for the Orders by Category chart (avoids duplicate legend entries).
 private struct CategoryChartItem: Identifiable {
     var id: String { name }
     let name: String
     let count: Int
 }
 
+/// Daily sales for a date range: swipeable charts (Sales Amount, Order Count, Categories), summary table, and categories table.
+///
+/// Uses ``APIService/dailySales(storeCode:startDate:endDate:)`` and ``APIService/dailySalesCategories(storeCode:startDate:endDate:)``.
+/// When ``storeCode`` is set, only that store is shown; when `nil`, all stores are included.
 struct DailySalesView: View {
     /// When set, only that store's data is shown; when nil, all stores.
     var storeCode: String? = nil

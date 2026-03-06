@@ -12,9 +12,11 @@ private func storeLogoImageName(storeCode: String) -> String {
     return "StoreLogo_\(sanitized.isEmpty ? storeCode : sanitized)"
 }
 
+/// A single store tile in the dashboard grid: shows the store logo and optional out-of-stock badge.
 private struct StoreTileView: View {
     let storeCode: String
-    let outOfStockCount: Int?  // nil while loading
+    /// Number of recent out-of-stock events; `nil` while loading.
+    let outOfStockCount: Int?
 
     private var logoImageName: String { storeLogoImageName(storeCode: storeCode) }
 
@@ -36,6 +38,10 @@ private struct StoreTileView: View {
     }
 }
 
+/// Dashboard showing a grid of store tiles; tapping a store opens ``ContentView`` with Out of Stock and Daily Sales tabs.
+///
+/// Loads the store list from ``APIService/storePerformance()`` and optionally fetches recent out-of-stock
+/// counts per store. Supports pull-to-refresh.
 struct HomeView: View {
     @State private var stores: [StorePerformanceItem] = []
     @State private var outOfStockCounts: [String: Int] = [:]

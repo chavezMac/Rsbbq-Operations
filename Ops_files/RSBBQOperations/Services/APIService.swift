@@ -1,8 +1,10 @@
 import Foundation
 import Combine
 // MARK: - Config
-// Base URL is set at build time via xcconfig → Info.plist key "APIBaseURL".
-// Use Config.xcconfig (placeholder) or Secrets.xcconfig (real URL, gitignored) as the project’s base configuration.
+/// API base URL and build-time configuration.
+///
+/// The base URL is read from the app's Info.plist key `APIBaseURL`, set at build time
+/// via xcconfig (Config.xcconfig or Secrets.xcconfig). All API requests use this URL.
 enum APIConfig {
     static var baseURL: String {
         let url = (Bundle.main.object(forInfoDictionaryKey: "APIBaseURL") as? String) ?? ""
@@ -20,11 +22,20 @@ enum APIConfig {
 }
 
 // MARK: - Auth
+
+/// Manages JWT authentication state for the app and coordinates with ``APIService``.
+///
+/// When the user signs in successfully, the token is stored and set on ``APIService/shared`` so that
+/// subsequent API calls include the `Authorization: Bearer` header. Use ``logout()`` to clear the token.
 @MainActor
 final class AuthManager: ObservableObject {
+    /// The current JWT; `nil` when the user is not logged in.
     @Published var token: String?
+    /// `true` when a token is present and the user is considered authenticated.
     var isAuthenticated: Bool { token != nil }
 
+    /// Authenticates with the Operations API and stores the returned JWT.
+    /// - Throws: ``APIError/loginFailed`` if the server returns a non-200 response.
     func login(username: String, password: String) async throws {
         let url = URL(string: "\(APIConfig.baseURL)/api/login")!
         var req = URLRequest(url: url)
@@ -38,16 +49,23 @@ final class AuthManager: ObservableObject {
         APIService.shared.authToken = decoded.token
     }
 
+    /// Clears the stored token and the shared API client’s auth header.
     func logout() {
         token = nil
         APIService.shared.authToken = nil
     }
 }
 
+/// Payload sent to `POST /api/login` for authentication.
 struct LoginRequest: Encodable { let username: String; let password: String }
+
+/// Response from `POST /api/login` containing the JWT to use for subsequent requests.
 struct LoginResponse: Decodable { let token: String }
 
-/// Maps to v_out_of_stock_events: stock_status_id, store_code, item_id, item_name, date, status_datetime, status, etc.
+/// A single out-of-stock event or item record from the `/api/out-of-stock` endpoint.
+///
+/// Maps from the API’s row format (e.g. `stock_status_id`, `store_code`, `item_id`, `item_name`,
+/// `date`, `status_datetime`, `status`) and is used by ``OutOfStockEventsView`` and related logic.
 struct OutOfStockItem: Identifiable {
     let id: String
     let productName: String?
@@ -68,7 +86,10 @@ struct OutOfStockItem: Identifiable {
     }
 }
 
-/// Per-store daily sales summary (aggregated from /api/daily-sales).
+/// Aggregated daily sales totals for one store from the `/api/daily-sales` endpoint.
+///
+/// Includes catering vs. non-catering amounts and order counts. Used by ``DailySalesView`` for
+/// charts and the summary table.
 struct DailySalesSummary: Identifiable {
     var id: String { storeCode }
     let storeCode: String
@@ -80,14 +101,21 @@ struct DailySalesSummary: Identifiable {
     let totalOrders: Int
 }
 
-/// Minimal store performance model used for store tiles and navigation.
+/// A store entry used for the dashboard tiles and for passing the selected store into ``ContentView``.
+///
+/// The ``storeCode`` is the unique identifier and is used when calling store-specific APIs (e.g. out-of-stock, daily sales).
 struct StorePerformanceItem: Identifiable, Hashable {
     var id: String { storeCode }
+    /// Unique store identifier used in API queries (e.g. out-of-stock, daily sales).
     let storeCode: String
+    /// Optional display string for the tile; currently unused, reserved for future metrics.
     var displayMetrics: String { "" }
 }
 
-// Per-store daily sales by dining option (e.g. Dine-in, Takeout, Delivery).
+/// Orders for one store broken down by dining option (e.g. Dine-in, Takeout, Delivery).
+///
+/// Returned by `/api/daily-sales-by-dining-option` and used in ``DailySalesView`` for the
+/// “Orders by Category” chart and the categories summary table.
 struct DailySalesCategories: Identifiable {
     var id: String { "\(storeCode)|\(diningOptionName)" }
     let storeCode: String
@@ -123,6 +151,12 @@ private func parseInteger(_ value: Any?) -> Int {
 }
 
 // MARK: - API Client
+
+/// Shared HTTP client for the RSBBQ Operations API.
+///
+/// Use ``APIService/shared`` for all API calls. Set ``authToken`` (usually via ``AuthManager``) so that
+/// authenticated endpoints receive the `Authorization: Bearer` header. Endpoints include store performance,
+/// daily sales, daily sales by category, time-window stock status, and out-of-stock events.
 final class APIService {
     static let shared = APIService()
     private init() {}
@@ -130,7 +164,8 @@ final class APIService {
     /// Set by AuthManager on login; cleared on logout. Used for Daily Summary and other authenticated endpoints.
     var authToken: String?
 
-    /// Store performance list used to build store tiles / selection.
+    /// Fetches the list of stores for the dashboard tiles (GET /api/store-performance).
+    /// - Returns: One ``StorePerformanceItem`` per store.
     func storePerformance() async throws -> [StorePerformanceItem] {
         let url = URL(string: "\(APIConfig.baseURL)/api/store-performance")!
         let data = try await performGET(url: url)
@@ -182,6 +217,12 @@ final class APIService {
         }
     }
 
+    /// Fetches orders by dining option for one store and date range (GET /api/daily-sales-by-dining-option).
+    /// - Parameters:
+    ///   - storeCode: The store to query.
+    ///   - startDate: Start date in YYYY-MM-DD format.
+    ///   - endDate: End date in YYYY-MM-DD format.
+    /// - Returns: One ``DailySalesCategories`` per (store, dining option) with order count.
     func dailySalesCategories(storeCode: String, startDate: String, endDate: String) async throws -> [DailySalesCategories] {
         var components = URLComponents(string: "\(APIConfig.baseURL)/api/daily-sales-by-dining-option")!
         var queryItems = [URLQueryItem(name: "store", value: storeCode), URLQueryItem(name: "startDate", value: startDate), URLQueryItem(name: "endDate", value: endDate)]
@@ -244,8 +285,11 @@ final class APIService {
     }
 }
 
+/// Errors returned by ``APIService`` and ``AuthManager`` when API calls fail.
 enum APIError: LocalizedError {
+    /// Login failed (e.g. invalid credentials or non-200 from POST /api/login).
     case loginFailed
+    /// An API request failed; `statusCode` is the HTTP status when available.
     case requestFailed(statusCode: Int?)
     var errorDescription: String? {
         switch self {

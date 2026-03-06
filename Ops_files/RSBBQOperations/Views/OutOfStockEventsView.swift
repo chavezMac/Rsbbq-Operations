@@ -28,12 +28,19 @@ private func statusDatetimeInPST(_ raw: String) -> String? {
 
 
 // MARK: - Out-of-stock daily trends (heatmap-style table like web DailyTrends)
+
+/// One row in the hourly stock heatmap: an item name and its status per time window (time_window_id → status).
 private struct TimeWindowRow: Identifiable {
     let id = UUID()
     let itemName: String
-    let timeWindows: [String: String]  // time_window_id → status
+    /// Maps time_window_id to status (e.g. IN_STOCK, OUT_OF_STOCK).
+    let timeWindows: [String: String]
 }
 
+/// Hourly stock status heatmap for one store and date: items vs. 30-minute time windows (11am–9pm PST).
+///
+/// Uses ``APIService/timeWindows(days:storeCode:date:)`` to load data and displays a table with color-coded
+/// status (in stock, out of stock, no data). The store is fixed from the selected tile in ``ContentView``.
 struct OutOfStockEventsView: View {
     /// Store from the selected tile (passed by ContentView); user cannot change it here.
     let storeCode: String

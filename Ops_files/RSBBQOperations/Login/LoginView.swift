@@ -7,6 +7,10 @@ private let fallbackGradient = LinearGradient(
     colors: [Color.blue, Color.black],
     startPoint: .top, endPoint: .bottom)
 
+/// Sign-in screen: username/password fields and JWT login via ``AuthManager``.
+///
+/// Shown when the user is not authenticated. On success, the app switches to ``HomeView``.
+/// Uses a random background image from the login set and a fallback gradient if none are available.
 struct LoginView: View {
     @EnvironmentObject var auth: AuthManager
     @State private var username = ""
