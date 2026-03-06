@@ -6,9 +6,9 @@ name: DocC
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -50,11 +50,13 @@ jobs:
 
       - name: Build DocC archive
         run: |
+          # Override deployment target: project may be set for Xcode 26 (iOS 26.2); CI Xcode 16.2 only supports 12.0–18.2.99
           xcodebuild docbuild \
             -scheme "${{ env.SCHEME }}" \
             -project "${{ env.PROJECT_PATH }}" \
             -derivedDataPath "${{ env.DERIVED_DATA }}" \
             -destination 'generic/platform=iOS' \
+            IPHONEOS_DEPLOYMENT_TARGET=16.0 \
             -quiet
 
       - name: Find DocC archive
@@ -86,7 +88,7 @@ jobs:
           path: docs
 
   deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     needs: build-docs
     runs-on: ubuntu-latest
     environment:

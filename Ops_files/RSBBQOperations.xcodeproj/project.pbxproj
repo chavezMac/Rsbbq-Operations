@@ -30,14 +30,6 @@
 			path = RSBBQOperations;
 			sourceTree = "<group>";
 		};
-		64D0CC022F5A010000E63DD0 /* RSBBQOperations.docc */ = {
-			isa = PBXGroup;
-			children = (
-				64D0CC012F5A010000E63DD0 /* RSBBQOperations.docc */,
-			);
-			path = RSBBQOperations.docc;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,17 +47,9 @@
 			isa = PBXGroup;
 			children = (
 				640FBDBF2F4AE525006B1369 /* RSBBQOperations */,
-				64D0CC022F5A010000E63DD0 /* RSBBQOperations.docc */,
+				64D0CC022F5A010000E63DD0 /* RSBBQOperations */,
 				640FBDBE2F4AE525006B1369 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		64D0CC022F5A010000E63DD0 /* RSBBQOperations.docc */ = {
-			isa = PBXGroup;
-			children = (
-				64D0CC012F5A010000E63DD0 /* RSBBQOperations.docc */,
-			);
-			path = RSBBQOperations;
 			sourceTree = "<group>";
 		};
 		640FBDBE2F4AE525006B1369 /* Products */ = {
@@ -74,6 +58,14 @@
 				640FBDBD2F4AE525006B1369 /* RSBBQOperations.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		64D0CC022F5A010000E63DD0 /* RSBBQOperations */ = {
+			isa = PBXGroup;
+			children = (
+				64D0CC012F5A010000E63DD0 /* RSBBQOperations.docc */,
+			);
+			path = RSBBQOperations;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -288,6 +280,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J7AMB4FFDP;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RSBBQOperations/Info.plist;
@@ -325,6 +318,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J7AMB4FFDP;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RSBBQOperations/Info.plist;
