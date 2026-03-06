@@ -92,7 +92,7 @@ To enable GitHub Pages:
 1. In the repo: **Settings → Pages**.
 2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
 3. After the next push to `master`, docs will be available at  
-   `https://<owner>.github.io/<repo>/documentation/rsbbqoperations`.
+   `https://<owner>.github.io/<repo>/documentation/rsbbqoperations` (module name is lowercase in the URL).
 
 The workflow uses a **stub `Secrets.xcconfig`** in CI (copied from `Config.xcconfig` or a placeholder) so the project builds without your real API URL. To add articles or customize the catalog, edit the `RSBBQOperations.docc` folder and add Markdown under that catalog.
 

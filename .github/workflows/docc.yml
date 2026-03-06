@@ -82,7 +82,23 @@ jobs:
       - name: Add redirect index for GitHub Pages
         run: |
           MODULE=$(basename "${{ steps.archive.outputs.path }}" .doccarchive)
-          echo '<script>window.location.href += "documentation/'"$MODULE"'";</script>' > docs/index.html
+          MODULE_LOWER=$(echo "$MODULE" | tr '[:upper:]' '[:lower:]')
+          # Full HTML at root so GitHub Pages serves the site; relative URL works for any repo path
+          cat > docs/index.html << INDEXEOF
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>RSBBQ Operations — Documentation</title>
+          <meta http-equiv="refresh" content="0;url=documentation/${MODULE_LOWER}/">
+          <script>var p = window.location.pathname.replace(/\\/?\$/, ""); window.location.replace(p + "/documentation/${MODULE_LOWER}/");</script>
+          </head>
+          <body>
+          <p>Redirecting to <a href="documentation/${MODULE_LOWER}/">documentation</a>…</p>
+          </body>
+          </html>
+          INDEXEOF
 
       - name: Upload DocC artifact
         uses: actions/upload-pages-artifact@v3
